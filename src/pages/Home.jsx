@@ -18,10 +18,28 @@ function Home() {
   const [cameraActive, setCameraActive] = useState(false); // State to check if camera is active
 
 
-  const startCamera = async () => {
+  // const startCamera = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       video: { facingMode }, // Toggle between 'user' (front) and 'environment' (back) camera
+  //     });
+  //     videoRef.current.srcObject = stream;
+  //     setCameraActive(true); // Set camera as active
+  //   } catch (err) {
+  //     console.error('Error accessing camera:', err);
+  //   }
+  // };
+ const startCamera = async (mode = facingMode) => {
+    // Stop any existing streams before starting a new one
+    if (videoRef.current && videoRef.current.srcObject) {
+      let stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+    }
+  
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode }, // Toggle between 'user' (front) and 'environment' (back) camera
+        video: { facingMode: mode }, // Set the facing mode here
       });
       videoRef.current.srcObject = stream;
       setCameraActive(true); // Set camera as active
@@ -29,6 +47,7 @@ function Home() {
       console.error('Error accessing camera:', err);
     }
   };
+ 
 
   const captureImage = () => {
     const canvas = canvasRef.current;
@@ -67,11 +86,13 @@ function Home() {
   //   Navigate('/Result/',{state:{imageUrl}});
   // };
 
-  const toggleCamera = () => {
-    setFacingMode((prevMode) => (prevMode === 'user' ? 'environment' : 'user'));
-    startCamera(); // Restart camera with new facing mode
+const toggleCamera = () => {
+    const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newFacingMode); // Toggle facing mode
+    console.log(newFacingMode);
+    
+    startCamera(newFacingMode); // Restart camera with the new mode
   };
-
   return (
     <div className="flex flex-col min-h-[100dvh]">
 
